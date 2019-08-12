@@ -81,7 +81,8 @@ type Config struct {
 	// or Infura. If using Alchemy or Parity, feel free to double the default max in order to reduce the
 	// number of RPC calls made by Mesh.
 	EthereumRPCMaxContentLength int `envvar:"ETHEREUM_RPC_MAX_CONTENT_LENGTH" default:"524288"`
-	// CustomTopic is an additional custom topic the Mesh node should send/receive orders to/from
+	// CustomTopic is an additional topic the Mesh node should send orders to. If specified, the node will also
+	// exclusively receive orders from peers also subscribed to the custom topic.
 	CustomTopic string `envvar:"CUSTOM_TOPIC" default:""`
 }
 
