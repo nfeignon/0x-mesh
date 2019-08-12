@@ -182,7 +182,7 @@ export interface LatestBlock {
 
 export interface GetStatsResponse {
     Version: string;
-    PubSubTopic: string;
+    PubSubTopics: string[];
     Rendezvous: string;
     PeerID: string;
     EthereumNetworkID: number;

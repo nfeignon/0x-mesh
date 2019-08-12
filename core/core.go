@@ -81,6 +81,8 @@ type Config struct {
 	// or Infura. If using Alchemy or Parity, feel free to double the default max in order to reduce the
 	// number of RPC calls made by Mesh.
 	EthereumRPCMaxContentLength int `envvar:"ETHEREUM_RPC_MAX_CONTENT_LENGTH" default:"524288"`
+	// CustomTopic is an additional custom topic the Mesh node should send/receive orders to/from
+	CustomTopic string `envvar:"CUSTOM_TOPIC" default:""`
 }
 
 type snapshotInfo struct {
@@ -229,7 +231,7 @@ func unquoteConfig(config Config) Config {
 	return config
 }
 
-func getPubSubTopic(networkID int) string {
+func getDefaultPubSubTopic(networkID int) string {
 	return fmt.Sprintf("/0x-orders/network/%d/version/1", networkID)
 }
 
@@ -349,7 +351,8 @@ func (app *App) Start(ctx context.Context) error {
 
 	// Initialize the p2p node.
 	nodeConfig := p2p.Config{
-		Topic:            getPubSubTopic(app.config.EthereumNetworkID),
+		DefaultTopic:     getDefaultPubSubTopic(app.config.EthereumNetworkID),
+		CustomTopic:      app.config.CustomTopic,
 		ListenPort:       app.config.P2PListenPort,
 		Insecure:         false,
 		PrivateKey:       app.privKey,
@@ -639,9 +642,13 @@ func (app *App) GetStats() (*rpc.GetStatsResponse, error) {
 		return nil, err
 	}
 
+	topics := []string{getDefaultPubSubTopic(app.config.EthereumNetworkID)}
+	if app.config.CustomTopic != "" {
+		topics = append(topics, app.config.CustomTopic)
+	}
 	response := &rpc.GetStatsResponse{
 		Version:           version,
-		PubSubTopic:       getPubSubTopic(app.config.EthereumNetworkID),
+		PubSubTopics:      topics,
 		Rendezvous:        getRendezvous(app.config.EthereumNetworkID),
 		PeerID:            app.peerID.String(),
 		EthereumNetworkID: app.config.EthereumNetworkID,
