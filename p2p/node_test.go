@@ -80,8 +80,8 @@ func newTestNode(t *testing.T, ctx context.Context, notifee p2pnet.Notifiee) *No
 	privKey, _, err := p2pcrypto.GenerateSecp256k1Key(rand.Reader)
 	require.NoError(t, err)
 	config := Config{
-		DefaultTopic:     testTopic,
-		CustomTopic:      "",
+		PublishTopics:    []string{testTopic},
+		SubscribeTopic:   testTopic,
 		ListenPort:       0, // Let OS randomly choose an open port.
 		PrivateKey:       privKey,
 		MessageHandler:   &dummyMessageHandler{},

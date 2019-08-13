@@ -350,10 +350,18 @@ func (app *App) Start(ctx context.Context) error {
 		blockWatcherErrChan <- app.blockWatcher.Watch(innerCtx)
 	}()
 
+	defaultTopic := getDefaultPubSubTopic(app.config.EthereumNetworkID)
+	publishTopics := []string{defaultTopic}
+	subscribeTopic := defaultTopic
+	if app.config.CustomTopic != "" {
+		publishTopics = append(publishTopics, app.config.CustomTopic)
+		subscribeTopic = app.config.CustomTopic
+	}
+
 	// Initialize the p2p node.
 	nodeConfig := p2p.Config{
-		DefaultTopic:     getDefaultPubSubTopic(app.config.EthereumNetworkID),
-		CustomTopic:      app.config.CustomTopic,
+		PublishTopics:    publishTopics,
+		SubscribeTopic:   subscribeTopic,
 		ListenPort:       app.config.P2PListenPort,
 		Insecure:         false,
 		PrivateKey:       app.privKey,
